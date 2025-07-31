@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 1,
+    "name": "E-commerce Platform",
+    "description": "Building a comprehensive online shopping platform with modern UI/UX",
+    "status": "Active",
+    "color": "#3b82f6",
+    "createdAt": "2024-01-10T10:00:00.000Z"
+  },
+  {
+    "Id": 2,
+    "name": "Mobile App Development",
+    "description": "Cross-platform mobile application for customer engagement",
+    "status": "Active",
+    "color": "#10b981",
+    "createdAt": "2024-01-12T15:30:00.000Z"
+  },
+  {
+    "Id": 3,
+    "name": "Data Analytics Dashboard",
+    "description": "Real-time analytics dashboard for business intelligence",
+    "status": "On-Hold",
+    "color": "#f59e0b",
+    "createdAt": "2024-01-08T09:15:00.000Z"
+  },
+  {
+    "Id": 4,
+    "name": "Website Redesign",
+    "description": "Complete overhaul of company website with modern design",
+    "status": "Completed",
+    "color": "#8b5cf6",
+    "createdAt": "2024-01-05T13:45:00.000Z"
+  },
+  {
+    "Id": 5,
+    "name": "API Integration",
+    "description": "Third-party API integration for enhanced functionality",
+    "status": "Active",
+    "color": "#ef4444",
+    "createdAt": "2024-01-20T16:20:00.000Z"
+  }
+]

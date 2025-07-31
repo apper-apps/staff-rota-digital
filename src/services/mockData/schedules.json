@@ -1,0 +1,44 @@
+[
+  {
+    "Id": 1,
+    "date": "2024-01-22",
+    "staffId": 1,
+    "projectId": 1,
+    "createdAt": "2024-01-20T10:00:00.000Z"
+  },
+  {
+    "Id": 2,
+    "date": "2024-01-22",
+    "staffId": 2,
+    "projectId": 1,
+    "createdAt": "2024-01-20T10:05:00.000Z"
+  },
+  {
+    "Id": 3,
+    "date": "2024-01-23",
+    "staffId": 1,
+    "projectId": 2,
+    "createdAt": "2024-01-20T10:10:00.000Z"
+  },
+  {
+    "Id": 4,
+    "date": "2024-01-23",
+    "staffId": 3,
+    "projectId": 2,
+    "createdAt": "2024-01-20T10:15:00.000Z"
+  },
+  {
+    "Id": 5,
+    "date": "2024-01-24",
+    "staffId": 4,
+    "projectId": 5,
+    "createdAt": "2024-01-20T10:20:00.000Z"
+  },
+  {
+    "Id": 6,
+    "date": "2024-01-24",
+    "staffId": 5,
+    "projectId": 1,
+    "createdAt": "2024-01-20T10:25:00.000Z"
+  }
+]
