@@ -12,7 +12,9 @@ import {
   subMonths,
   addWeeks,
   subWeeks,
-  startOfDay
+  startOfDay,
+  addDays,
+  eachDayOfInterval as getDateRange
 } from "date-fns";
 import { toast } from "react-toastify";
 import Button from "@/components/atoms/Button";
@@ -38,8 +40,11 @@ const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
 const [selectedStaffIds, setSelectedStaffIds] = useState([]);
   const [staffProjectMap, setStaffProjectMap] = useState({});
-  const [draggedSchedule, setDraggedSchedule] = useState(null);
+const [draggedSchedule, setDraggedSchedule] = useState(null);
   const [dragOverDate, setDragOverDate] = useState(null);
+  const [dragMode, setDragMode] = useState('single'); // 'single' or 'multi'
+  const [multiDayStart, setMultiDayStart] = useState(null);
+  const [multiDayEnd, setMultiDayEnd] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -107,7 +112,32 @@ const getDailyCost = (date) => {
       return total + (staffMember ? staffMember.dailyRate : 0);
     }, 0);
   };
-
+{/* Drag Mode Toggle */}
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-sm font-medium text-gray-700">Drag Mode:</span>
+        <div className="flex bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setDragMode('single')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${
+              dragMode === 'single' 
+                ? 'bg-white text-primary-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Single Day
+          </button>
+          <button
+            onClick={() => setDragMode('multi')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${
+              dragMode === 'multi' 
+                ? 'bg-white text-primary-600 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Multi Day
+          </button>
+        </div>
+      </div>
   const handleDateClick = (date) => {
     setSelectedDate(date);
     setSelectedStaffIds([]);
@@ -180,13 +210,17 @@ const handleRemoveSchedule = async (scheduleId) => {
     }
   };
 
-  const handleDragStart = (e, schedule) => {
+const handleDragStart = (e, schedule) => {
     setDraggedSchedule(schedule);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', e.target.outerHTML);
     e.target.style.opacity = '0.5';
+    
+    if (dragMode === 'multi') {
+      setMultiDayStart(null);
+      setMultiDayEnd(null);
+    }
   };
-
   const handleDragEnd = (e) => {
     e.target.style.opacity = '1';
     setDraggedSchedule(null);
@@ -203,24 +237,60 @@ const handleRemoveSchedule = async (scheduleId) => {
     setDragOverDate(null);
   };
 
-  const handleDrop = async (e, targetDate) => {
+const handleDrop = async (e, targetDate) => {
     e.preventDefault();
     if (!draggedSchedule) return;
 
     const targetDateStr = format(targetDate, 'yyyy-MM-dd');
-    if (draggedSchedule.date === targetDateStr) {
-      setDraggedSchedule(null);
-      setDragOverDate(null);
-      return;
-    }
-
+    
     try {
-      await scheduleService.update(draggedSchedule.Id, {
-        ...draggedSchedule,
-        date: targetDateStr
-      });
+      if (dragMode === 'single') {
+        // Single day move
+        if (draggedSchedule.date === targetDateStr) {
+          setDraggedSchedule(null);
+          setDragOverDate(null);
+          return;
+        }
+
+        await scheduleService.update(draggedSchedule.Id, {
+          ...draggedSchedule,
+          date: targetDateStr
+        });
+        toast.success("Staff member moved to new date");
+      } else if (dragMode === 'multi') {
+        // Multi-day assignment
+        if (!multiDayStart) {
+          setMultiDayStart(targetDate);
+          toast.info("Select end date for multi-day assignment");
+          return;
+        } else {
+          setMultiDayEnd(targetDate);
+          
+          const startDate = multiDayStart < targetDate ? multiDayStart : targetDate;
+          const endDate = multiDayStart < targetDate ? targetDate : multiDayStart;
+          
+          // Generate dates between start and end
+          const dateRange = getDateRange({ start: startDate, end: endDate });
+          
+          // Create multiple schedules for the date range
+          const newSchedules = dateRange.map(date => ({
+            Name: `${draggedSchedule.staffId?.Name || 'Staff'} - ${format(date, 'yyyy-MM-dd')}`,
+            staffId: draggedSchedule.staffId?.Id || draggedSchedule.staffId,
+            projectId: draggedSchedule.projectId?.Id || draggedSchedule.projectId,
+            date: format(date, 'yyyy-MM-dd')
+          }));
+
+          // Remove the original schedule and create new ones
+          await scheduleService.delete(draggedSchedule.Id);
+          await scheduleService.createBatch(newSchedules);
+          
+          toast.success(`Staff member assigned to ${dateRange.length} days`);
+          setMultiDayStart(null);
+          setMultiDayEnd(null);
+        }
+      }
+      
       await loadData();
-      toast.success("Staff member moved to new date");
     } catch (error) {
       console.error("Error moving schedule:", error);
       toast.error("Failed to move staff member");
@@ -384,7 +454,19 @@ const handleRemoveSchedule = async (scheduleId) => {
             );
           })}
         </div>
-      </div>
+</div>
+      
+      {/* Multi-day Selection Indicator */}
+      {dragMode === 'multi' && multiDayStart && (
+        <div className="fixed bottom-4 right-4 bg-primary-600 text-white p-3 rounded-lg shadow-lg z-50">
+          <div className="flex items-center gap-2">
+            <ApperIcon name="Calendar" size={16} />
+            <span className="text-sm">
+              Start: {format(multiDayStart, 'MMM dd')} - Drop on end date
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Schedule Modal */}
       <Modal
