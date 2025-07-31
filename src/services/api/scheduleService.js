@@ -51,6 +51,20 @@ export const scheduleService = {
     return results;
   },
 
+async update(id, updateData) {
+    await delay(300);
+    const index = schedules.findIndex(s => s.Id === parseInt(id));
+    if (index === -1) {
+      throw new Error("Schedule not found");
+    }
+    schedules[index] = {
+      ...schedules[index],
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    };
+    return { ...schedules[index] };
+  },
+
   async delete(id) {
     await delay(250);
     const index = schedules.findIndex(s => s.Id === parseInt(id));

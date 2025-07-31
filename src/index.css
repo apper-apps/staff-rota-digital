@@ -35,6 +35,30 @@
   }
 }
 
+/* Drag and Drop Styles */
+.draggable-schedule {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.draggable-schedule:hover {
+  transform: translateY(-1px);
+}
+
+.drop-zone-active {
+  animation: pulse-blue 1s infinite;
+}
+
+@keyframes pulse-blue {
+  0%, 100% { 
+    background-color: rgb(239 246 255);
+    border-color: rgb(147 197 253);
+  }
+  50% { 
+    background-color: rgb(219 234 254);
+    border-color: rgb(59 130 246);
+  }
+}
+
 /* Toast Customization */
 .Toastify__toast-container {
   @apply z-[9999];

@@ -36,8 +36,10 @@ const CalendarPage = () => {
   const [error, setError] = useState("");
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedStaffIds, setSelectedStaffIds] = useState([]);
+const [selectedStaffIds, setSelectedStaffIds] = useState([]);
   const [staffProjectMap, setStaffProjectMap] = useState({});
+  const [draggedSchedule, setDraggedSchedule] = useState(null);
+  const [dragOverDate, setDragOverDate] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -167,6 +169,66 @@ const CalendarPage = () => {
       toast.error(err.message);
     }
   };
+const handleRemoveSchedule = async (scheduleId) => {
+    try {
+      await scheduleService.delete(scheduleId);
+      await loadData();
+      toast.success("Staff member removed from schedule");
+    } catch (error) {
+      console.error("Error removing schedule:", error);
+      toast.error("Failed to remove staff member from schedule");
+    }
+  };
+
+  const handleDragStart = (e, schedule) => {
+    setDraggedSchedule(schedule);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.target.outerHTML);
+    e.target.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = '1';
+    setDraggedSchedule(null);
+    setDragOverDate(null);
+  };
+
+  const handleDragOver = (e, date) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverDate(format(date, 'yyyy-MM-dd'));
+  };
+
+  const handleDragLeave = () => {
+    setDragOverDate(null);
+  };
+
+  const handleDrop = async (e, targetDate) => {
+    e.preventDefault();
+    if (!draggedSchedule) return;
+
+    const targetDateStr = format(targetDate, 'yyyy-MM-dd');
+    if (draggedSchedule.date === targetDateStr) {
+      setDraggedSchedule(null);
+      setDragOverDate(null);
+      return;
+    }
+
+    try {
+      await scheduleService.update(draggedSchedule.Id, {
+        ...draggedSchedule,
+        date: targetDateStr
+      });
+      await loadData();
+      toast.success("Staff member moved to new date");
+    } catch (error) {
+      console.error("Error moving schedule:", error);
+      toast.error("Failed to move staff member");
+    }
+
+    setDraggedSchedule(null);
+    setDragOverDate(null);
+  };
 
   const navigatePrevious = () => {
     if (viewMode === "week") {
@@ -187,7 +249,6 @@ const CalendarPage = () => {
   const goToToday = () => {
     setCurrentDate(new Date());
   };
-
   if (loading) return <Loading rows={4} />;
   if (error) return <Error message={error} onRetry={loadData} />;
 
@@ -253,12 +314,15 @@ const CalendarPage = () => {
             const isCurrentMonth = viewMode === "week" || isSameMonth(date, currentDate);
 
             return (
-              <div
+<div
                 key={index}
                 className={`min-h-[120px] p-3 border-r border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors duration-200 ${
                   !isCurrentMonth ? "bg-gray-50/50 text-gray-400" : ""
-                }`}
+                } ${dragOverDate === format(date, 'yyyy-MM-dd') ? 'bg-blue-50 border-blue-300 border-2 drop-zone-active' : ''}`}
                 onClick={() => handleDateClick(date)}
+                onDragOver={(e) => handleDragOver(e, date)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, date)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span
@@ -285,16 +349,33 @@ const CalendarPage = () => {
                     const project = projects.find(p => p.Id === schedule.projectId);
                     
                     return (
-                      <div
+<div
                         key={schedule.Id}
-                        className="text-xs p-1.5 rounded text-white font-medium truncate"
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, schedule)}
+                        onDragEnd={handleDragEnd}
+                        className="text-xs p-1.5 rounded text-white font-medium truncate cursor-move relative group draggable-schedule hover:shadow-lg transition-all duration-200"
                         style={{ backgroundColor: project?.color || "#6b7280" }}
                         title={`${staffMember?.name || "Unknown"} - ${project?.name || "No Project"}`}
                       >
-                        <div className="truncate">{staffMember?.name || "Unknown"}</div>
-                        {project && (
-                          <div className="truncate opacity-90">{project.name}</div>
-                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="truncate">{staffMember?.name || "Unknown"}</div>
+                            {project && (
+                              <div className="truncate opacity-90">{project.name}</div>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveSchedule(schedule.Id);
+                            }}
+                            className="ml-1 opacity-0 group-hover:opacity-100 hover:bg-white hover:bg-opacity-20 rounded p-0.5 transition-all duration-200"
+                            title="Remove from schedule"
+                          >
+                            <ApperIcon name="X" size={12} />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
