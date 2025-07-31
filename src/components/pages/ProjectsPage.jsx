@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Button from "@/components/atoms/Button";
-import Input from "@/components/atoms/Input";
-import Select from "@/components/atoms/Select";
-import Badge from "@/components/atoms/Badge";
-import FormField from "@/components/molecules/FormField";
-import Modal from "@/components/molecules/Modal";
+import { projectService } from "@/services/api/projectService";
+import ApperIcon from "@/components/ApperIcon";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog";
+import Modal from "@/components/molecules/Modal";
+import FormField from "@/components/molecules/FormField";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import ApperIcon from "@/components/ApperIcon";
-import { projectService } from "@/services/api/projectService";
+import Badge from "@/components/atoms/Badge";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import Select from "@/components/atoms/Select";
 
 const ProjectsPage = () => {
-  const [projects, setProjects] = useState([]);
+const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    Name: "",
     description: "",
     status: "Active",
     color: "#3b82f6"
@@ -55,7 +55,7 @@ const ProjectsPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingProject) {
@@ -68,22 +68,22 @@ const ProjectsPage = () => {
 
       setShowModal(false);
       setEditingProject(null);
-      setFormData({ name: "", description: "", status: "Active", color: "#3b82f6" });
+      setFormData({ Name: "", description: "", status: "Active", color: "#3b82f6" });
       loadProjects();
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  const handleEdit = (project) => {
+const handleEdit = (project) => {
     setEditingProject(project);
     setFormData({
-      name: project.name,
+      Name: project.Name,
       description: project.description,
       status: project.status,
       color: project.color
     });
-    setShowModal(true);
+setShowModal(true);
   };
 
   const handleDelete = async (project) => {
@@ -93,13 +93,13 @@ const ProjectsPage = () => {
       setDeleteConfirm(null);
       loadProjects();
     } catch (err) {
-      toast.error(err.message);
+toast.error(err.message);
     }
   };
 
   const openAddModal = () => {
     setEditingProject(null);
-    setFormData({ name: "", description: "", status: "Active", color: "#3b82f6" });
+    setFormData({ Name: "", description: "", status: "Active", color: "#3b82f6" });
     setShowModal(true);
   };
 
@@ -133,7 +133,7 @@ const ProjectsPage = () => {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+{projects.map((project) => (
             <div key={project.Id} className="card p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -141,7 +141,7 @@ const ProjectsPage = () => {
                     className="w-4 h-4 rounded-full flex-shrink-0"
                     style={{ backgroundColor: project.color }}
                   />
-                  <h3 className="font-semibold text-gray-900 text-lg">{project.name}</h3>
+                  <h3 className="font-semibold text-gray-900 text-lg">{project.Name}</h3>
                 </div>
                 <Badge variant={getStatusVariant(project.status)}>
                   {project.status}
@@ -154,7 +154,7 @@ const ProjectsPage = () => {
 
               <div className="flex items-center justify-between">
                 <div className="text-xs text-gray-500">
-                  Created {new Date(project.createdAt).toLocaleDateString()}
+                  Created {new Date(project.createdAt || project.CreatedOn).toLocaleDateString()}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -184,10 +184,10 @@ const ProjectsPage = () => {
         size="md"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <FormField label="Project Name" required>
+<FormField label="Project Name" required>
             <Input
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.Name}
+              onChange={(e) => setFormData({ ...formData, Name: e.target.value })}
               placeholder="Enter project name"
               required
             />
@@ -249,12 +249,12 @@ const ProjectsPage = () => {
         </form>
       </Modal>
 
-      <ConfirmDialog
+<ConfirmDialog
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         onConfirm={() => handleDelete(deleteConfirm)}
         title="Delete Project"
-        message={`Are you sure you want to delete "${deleteConfirm?.name}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete "${deleteConfirm?.Name}"? This action cannot be undone.`}
         confirmText="Delete"
         variant="danger"
       />

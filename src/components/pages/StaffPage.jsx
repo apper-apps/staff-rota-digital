@@ -12,14 +12,14 @@ import ApperIcon from "@/components/ApperIcon";
 import { staffService } from "@/services/api/staffService";
 
 const StaffPage = () => {
-  const [staff, setStaff] = useState([]);
+const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    Name: "",
     role: "",
     dailyRate: ""
   });
@@ -28,7 +28,7 @@ const StaffPage = () => {
     loadStaff();
   }, []);
 
-  const loadStaff = async () => {
+const loadStaff = async () => {
     try {
       setLoading(true);
       setError("");
@@ -41,7 +41,7 @@ const StaffPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const staffData = {
@@ -59,17 +59,17 @@ const StaffPage = () => {
 
       setShowModal(false);
       setEditingStaff(null);
-      setFormData({ name: "", role: "", dailyRate: "" });
+      setFormData({ Name: "", role: "", dailyRate: "" });
       loadStaff();
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  const handleEdit = (staffMember) => {
+const handleEdit = (staffMember) => {
     setEditingStaff(staffMember);
     setFormData({
-      name: staffMember.name,
+      Name: staffMember.Name,
       role: staffMember.role,
       dailyRate: staffMember.dailyRate.toString()
     });
@@ -134,24 +134,24 @@ const StaffPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {staff.map((member) => (
+{staff.map((member) => (
                   <tr key={member.Id} className="hover:bg-gray-50 transition-colors duration-200">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
                           <span className="text-white font-medium text-sm">
-                            {member.name.split(" ").map(n => n[0]).join("")}
+                            {member.Name?.split(" ").map(n => n[0]).join("") || "?"}
                           </span>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{member.name}</div>
+                          <div className="text-sm font-medium text-gray-900">{member.Name}</div>
                           <div className="text-sm text-gray-500">{member.role}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-gray-900">
-                        ${member.dailyRate.toLocaleString()}
+                        ${member.dailyRate?.toLocaleString() || 0}
                       </div>
                       <div className="text-xs text-gray-500">per day</div>
                     </td>
@@ -231,12 +231,12 @@ const StaffPage = () => {
         </form>
       </Modal>
 
-      <ConfirmDialog
+<ConfirmDialog
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         onConfirm={() => handleDelete(deleteConfirm)}
         title="Delete Staff Member"
-        message={`Are you sure you want to delete ${deleteConfirm?.name}? This action cannot be undone.`}
+        message={`Are you sure you want to delete ${deleteConfirm?.Name}? This action cannot be undone.`}
         confirmText="Delete"
         variant="danger"
       />

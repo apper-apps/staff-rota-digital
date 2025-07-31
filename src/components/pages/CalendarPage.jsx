@@ -100,7 +100,7 @@ const [selectedStaffIds, setSelectedStaffIds] = useState([]);
     return schedules.filter(s => s.date === dateStr);
   };
 
-  const getDailyCost = (date) => {
+const getDailyCost = (date) => {
     const daySchedules = getSchedulesForDate(date);
     return daySchedules.reduce((total, schedule) => {
       const staffMember = staff.find(s => s.Id === schedule.staffId);
@@ -344,7 +344,7 @@ const handleRemoveSchedule = async (scheduleId) => {
                 </div>
 
                 <div className="space-y-1">
-                  {daySchedules.map((schedule) => {
+{daySchedules.map((schedule) => {
                     const staffMember = staff.find(s => s.Id === schedule.staffId);
                     const project = projects.find(p => p.Id === schedule.projectId);
                     
@@ -356,13 +356,13 @@ const handleRemoveSchedule = async (scheduleId) => {
                         onDragEnd={handleDragEnd}
                         className="text-xs p-1.5 rounded text-white font-medium truncate cursor-move relative group draggable-schedule hover:shadow-lg transition-all duration-200"
                         style={{ backgroundColor: project?.color || "#6b7280" }}
-                        title={`${staffMember?.name || "Unknown"} - ${project?.name || "No Project"}`}
+                        title={`${staffMember?.Name || "Unknown"} - ${project?.Name || "No Project"}`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
-                            <div className="truncate">{staffMember?.name || "Unknown"}</div>
+                            <div className="truncate">{staffMember?.Name || "Unknown"}</div>
                             {project && (
-                              <div className="truncate opacity-90">{project.name}</div>
+                              <div className="truncate opacity-90">{project.Name}</div>
                             )}
                           </div>
                           <button
@@ -406,7 +406,7 @@ const handleRemoveSchedule = async (scheduleId) => {
               
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {staff.map((member) => {
-                  const isSelected = selectedStaffIds.includes(member.Id);
+const isSelected = selectedStaffIds.includes(member.Id);
                   
                   return (
                     <div key={member.Id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
@@ -418,7 +418,7 @@ const handleRemoveSchedule = async (scheduleId) => {
                           className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                         />
                         <div>
-                          <div className="font-medium text-gray-900">{member.name}</div>
+                          <div className="font-medium text-gray-900">{member.Name}</div>
                           <div className="text-sm text-gray-500">{member.role} • ${member.dailyRate}/day</div>
                         </div>
                       </div>
@@ -431,7 +431,7 @@ const handleRemoveSchedule = async (scheduleId) => {
                         >
                           {projects.filter(p => p.status === "Active").map((project) => (
                             <option key={project.Id} value={project.Id}>
-                              {project.name}
+                              {project.Name}
                             </option>
                           ))}
                         </select>
