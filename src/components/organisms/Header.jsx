@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { format } from "date-fns";
 import ApperIcon from "@/components/ApperIcon";
-import { AuthContext } from "@/contexts/AuthContext";
+import { AuthContext } from "@/App";
 const Header = () => {
   const currentDate = new Date();
   const { logout } = useContext(AuthContext);
